@@ -1,0 +1,17 @@
+node_modules
+dist
+logs
+.env
+.vercel
+
+# Temporary files
+*.log
+*.tmp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
