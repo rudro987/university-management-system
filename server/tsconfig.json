@@ -1,4 +1,8 @@
 {
+  // Learn more: https://www.typescriptlang.org/tsconfig
+  
+  "include": ["src"],   /* Which files to compile */
+  "exclude": ["node_modules"],  /* Which files to skip */
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
