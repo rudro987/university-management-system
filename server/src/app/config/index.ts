@@ -11,6 +11,7 @@ if (!process.env.PORT || !process.env.DATABASE_URL) {
 
 //? Export configuration object
 export default {
+  node_env: process.env.NODE_ENV, // Node environment
   port: process.env.PORT || 3000, // Application port
   database_url: process.env.DATABASE_URL || '', // MongoDB connection URL
 };

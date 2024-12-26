@@ -2,9 +2,11 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { StudentRoutes } from './app/modules/student/student.route';
+import logger from './app/utils/logger';
+import config from './app/config';
 
 //? Initialize Express application
-const app : Application = express();
+const app: Application = express();
 
 //? Middleware for parsing JSON request bodies
 app.use(express.json());
@@ -13,15 +15,35 @@ app.use(express.json());
 app.use(cors());
 
 //? Middleware for logging HTTP requests in development mode
-app.use(morgan('dev')); // Use 'dev' for concise logs in development. Logs concise request details.
+const morganFormat =
+  config.node_env === 'production'
+    ? ':method :url :status :response-time ms - :res[content-length]'
+    : ':method :url :status :response-time ms';
+
+app.use(
+  morgan(morganFormat, {
+    stream: {
+      write: (message) => {
+        //* Parse and structure the Morgan log message
+        const logObject = {
+          method: message.split(' ')[0], // HTTP method
+          url: message.split(' ')[1], // Request URL
+          status: message.split(' ')[2], // HTTP status code
+          responseTime: message.split(' ')[3], // Response time in ms
+        };
+        //? Log the structured HTTP request details
+        logger.info(JSON.stringify(logObject));
+      },
+    },
+  }),
+);
 
 //? Application Routes
-
 app.use('/api/v1/students', StudentRoutes);
 
 //* Default route to test server setup
-app.get("/", (req: Request, res: Response) => {
-    res.send("Welcome to the UMS server!");
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to the UMS server!');
 });
 
 export default app;

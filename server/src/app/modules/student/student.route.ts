@@ -3,13 +3,16 @@ import { StudentControllers } from './student.controller';
 
 const router = express.Router();
 
-//?will call controller function for creating student from this route
+//? Route for creating a new student.
+//? Calls the `createStudent` controller.
 router.post('/create-student', StudentControllers.createStudent);
 
-//?will call controller function for getting all students data from this route
+//? Route for retrieving all students
+//? Calls the `getAllStudents` controller
 router.get('/', StudentControllers.getAllStudents);
 
-//?will call controller function for getting single student's data based on studentId from this route
+//? Route for retrieving a single student by ID
+//? Calls the `getSingleStudent` controller
 router.get('/:studentId', StudentControllers.getSingleStudent);
 
 export const StudentRoutes = router;
