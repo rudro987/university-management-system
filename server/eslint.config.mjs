@@ -22,7 +22,9 @@ export default tseslint.config(
 
       // Additional TypeScript-Specific Rules
       "@typescript-eslint/no-explicit-any": "warn", // Warn against `any` usage
-      // "@typescript-eslint/explicit-function-return-type": "error", // Enforce return types on functions
+
+      "@typescript-eslint/explicit-function-return-type": "error", // Enforce return types on functions
+
       "@typescript-eslint/no-empty-function": "warn", // Warn against empty functions
       "prettier/prettier": "warn", // Warn on Prettier formatting violations
     },
