@@ -4,6 +4,7 @@
   "include": ["src"],   /* Which files to compile */
   "exclude": ["node_modules"],  /* Which files to skip */
   "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./types"],
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */

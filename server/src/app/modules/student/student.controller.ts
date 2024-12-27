@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { StudentServices } from './student.service';
 import logger from '../../utils/logger';
+import config from '../../config';
 
 // Controller for creating a new student
 const createStudent = async (req: Request, res: Response) => {
@@ -12,10 +13,17 @@ const createStudent = async (req: Request, res: Response) => {
     //* Call service function to save student data into the database
     const result = await StudentServices.createStudentIntoDB(studentData);
 
+    if (!result) {
+      logger.info('POST /create-student - Student created successfully');
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to create student.',
+      });
+    }
+
     logger.info('POST /create-student - Student created successfully', {
       result,
     });
-
     //? Send success response
     res.status(200).json({
       success: true,
@@ -31,7 +39,7 @@ const createStudent = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Failed to create student.',
-      error: err,
+      error: config.node_env === 'production' ? err.message : err.stack,
     });
   }
 };
@@ -43,9 +51,12 @@ const getAllStudents = async (req: Request, res: Response) => {
     //* Call service function to retrieve all students from the database
     const result = await StudentServices.getAllStudentsFromDB();
 
-    if (!result.length) {
+    if (!result?.length) {
       logger.warn('GET / - No Data retrieved');
-      
+      return res.status(404).json({
+        success: false,
+        message: 'No students found.',
+      });
     }
     logger.info('GET / - All Students data retrieved successfully');
 
@@ -63,21 +74,29 @@ const getAllStudents = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve All students data',
-      error: err,
+      error: config.node_env === 'production' ? err.message : err.stack,
     });
   }
 };
 
 // Controller for retrieving a single student by ID
 const getSingleStudent = async (req: Request, res: Response) => {
+  //* Extract student ID from request parameters
   const { studentId } = req.params;
+
+  if (!studentId) {
+    logger.error('GET /:studentId - Missing student ID in request.');
+    return res.status(400).json({
+      success: false,
+      message: 'Student ID is required.',
+    });
+  }
+
+  logger.info(
+    `GET /:studentId - Request received for fetching student with ID: ${studentId}`,
+  );
+
   try {
-    //* Extract student ID from request parameters
-
-    logger.info(
-      `GET /:studentId - Request received for fetching student with ID: ${studentId}`,
-    );
-
     //* Call service function to retrieve student data
     const result = await StudentServices.getSingleStudentFromDB(studentId);
 
@@ -85,6 +104,10 @@ const getSingleStudent = async (req: Request, res: Response) => {
       logger.warn(
         `GET /:studentId - Request failed for fetching student with ID: ${studentId}`,
       );
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found.',
+      });
     }
     logger.info(
       `GET /:studentId - Request success for fetching student with ID: ${studentId}`,
@@ -107,7 +130,7 @@ const getSingleStudent = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Failed to retrieve student's data",
-      error: err,
+      error: config.node_env === 'production' ? err.message : err.stack,
     });
   }
 };
