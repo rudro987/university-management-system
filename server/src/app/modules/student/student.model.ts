@@ -127,8 +127,5 @@ const studentSchema = new Schema<TStudent>({
   },
 });
 
-// Add an index for the `email` field
-studentSchema.index({ email: 1 }); // Ensures fast queries on the `email` field
-
 // Exporting the Student model
 export const Student = model<TStudent>('Student', studentSchema);

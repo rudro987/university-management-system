@@ -22,8 +22,6 @@ const logger: Logger = createLogger({
       format: consoleLogFormat,
     }),
     //* Transport for logging to a file
-    new transports.File({ filename: 'app.log' }), // Logs saved in app.log file
-    //* Transport for logging to a file
     new DailyRotateFile({
       filename: 'logs/%DATE%.log',
       datePattern: 'YYYY-MM-DD',

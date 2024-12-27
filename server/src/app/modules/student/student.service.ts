@@ -1,78 +1,77 @@
-import handleAsync from '../../utils/handleAsync';
-import logger from '../../utils/logger';
+import { logError, logOperation } from '../../utils/logger';
 import redisClient from '../../utils/redis';
 import { TStudent } from './student.interface';
 import { Student } from './student.model';
 
-const createStudentIntoDB = handleAsync(async (student: TStudent) => {
-  logger.info('Creating student in database');
+const createStudentIntoDB = async (student: TStudent) => {
+  try {
+    const result = await Student.create(student);
+    logOperation('Student created successfully in database', {
+      studentId: result.id,
+    });
 
-  const result = await Student.create(student);
+    await redisClient.del('students:all'); // Invalidate cache
 
-  if (!result) {
-    logger.error('Failed to create student in database');
-    return null;
+    return result;
+  } catch (error) {
+    logError('Error inserting student into database', { error });
   }
+};
 
-  logger.info('Student created successfully in database', { result });
+const getAllStudentsFromDB = async () => {
+  try {
+    const cacheKey = 'students:all';
+    //? Check cache for existing data
+    const cachedAllStudentsData: string | null =
+      await redisClient.get(cacheKey);
 
-  return result;
-});
+    if (cachedAllStudentsData) {
+      const studentsData = JSON.parse(cachedAllStudentsData);
+      logOperation('Cache hit for all students data', { data: studentsData });
+      return studentsData; // Return cached data
+    }
 
-const getAllStudentsFromDB = handleAsync(async () => {
-  logger.info('Fetching all student data from database');
+    //*Fetch from DB if not cached
+    const result = await Student.find();
 
-  const cacheKey = 'students:all';
+    logOperation('All students data fetched from DB', { data: result });
 
-  //? Check cache for existing data
-  const cachedAllStudentsData: string | null = await redisClient.get(cacheKey);
+    await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
 
-  if (cachedAllStudentsData) {
-    logger.info('Cache hit for all students data');
-    return JSON.parse(cachedAllStudentsData); // Return cached data
+    return result;
+  } catch (error) {
+    logError('Error fetching all students from database', { error });
   }
+};
 
-  //*Fetch from DB if not cached
-  const result = await Student.find();
+const getSingleStudentFromDB = async (id: string) => {
+  try {
+    const cacheKey = `students:${id}`;
 
-  if (!result || result.length === 0) {
-    logger.warn('No data found');
-    return [];
+    //? Check cache for existing data
+    const cachedStudentData: string | null = await redisClient.get(cacheKey);
+
+    if (cachedStudentData) {
+      const studentData = JSON.parse(cachedStudentData);
+      logOperation(`Cache hit for student ID: ${id}`, {
+        studentId: studentData.id,
+      });
+      return studentData;
+    }
+
+    //*Fetch from DB if not cached
+    const result = await Student.findOne({ id });
+
+    logOperation(`Student fetched from DB with ID: ${id}`, {
+      studentId: result?.id,
+    });
+
+    await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
+    return result;
+  } catch (error) {
+    logError(`Error fetching student with ID: ${id} from database`, { error });
   }
-
-  logger.info('All students data fetched from DB');
-
-  await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
-
-  return result;
-});
-
-const getSingleStudentFromDB = handleAsync(async (id: string) => {
-  logger.info(`Fetching student from DB with ID: ${id}`); // Log the operation
-
-  const cacheKey = `students:${id}`;
-
-  //? Check cache for existing data
-  const cachedStudentData: string | null = await redisClient.get(cacheKey);
-
-  if (cachedStudentData) {
-    logger.info(`Cache hit for student ID: ${id}`);
-    return JSON.parse(cachedStudentData);
-  }
-
-  //*Fetch from DB if not cached
-  const result = await Student.findOne({ id });
-
-  if (!result) {
-    logger.warn(`No student found with ID: ${id}`);
-    return null;
-  }
-
-  logger.info(`Student fetched from DB with ID: ${id}`);
-
-  await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
-  return result;
-});
+};
 
 export const StudentServices = {
   createStudentIntoDB,
