@@ -7,8 +7,10 @@ const { combine, timestamp, json, colorize, printf } = format;
 //? Custom format for console logging with colors and concise output
 const consoleLogFormat = combine(
   colorize(), // Add colors for log levels
-  printf(({ level, message, timestamp }) => {
-    return `${timestamp} - ${level}: ${message}`; // Format log message
+  printf(({ level, message, timestamp, ...metadata }) => {
+    return `${timestamp} - ${level}: ${message} ${
+      Object.keys(metadata).length ? JSON.stringify(metadata) : ''
+    }`; // Format log message
   }),
 );
 

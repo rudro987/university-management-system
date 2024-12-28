@@ -8,6 +8,7 @@ const createStudentIntoDB = async (student: TStudent) => {
     const result = await Student.create(student);
     logOperation('Student created successfully in database', {
       studentId: result.id,
+      operation: 'createStudent'
     });
 
     await redisClient.del('students:all'); // Invalidate cache
@@ -15,6 +16,7 @@ const createStudentIntoDB = async (student: TStudent) => {
     return result;
   } catch (error) {
     logError('Error inserting student into database', { error });
+    throw error;
   }
 };
 
@@ -27,20 +29,21 @@ const getAllStudentsFromDB = async () => {
 
     if (cachedAllStudentsData) {
       const studentsData = JSON.parse(cachedAllStudentsData);
-      logOperation('Cache hit for all students data', { data: studentsData });
+      logOperation('Cache hit for all students data', { studentsDataCount: studentsData.length, operation: 'getAllStudents' });
       return studentsData; // Return cached data
     }
 
     //*Fetch from DB if not cached
     const result = await Student.find();
 
-    logOperation('All students data fetched from DB', { data: result });
+    logOperation('All students data fetched from DB',  { studentsDataCount: result.length });
 
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
 
     return result;
   } catch (error) {
     logError('Error fetching all students from database', { error });
+    throw error;
   }
 };
 
@@ -55,6 +58,7 @@ const getSingleStudentFromDB = async (id: string) => {
       const studentData = JSON.parse(cachedStudentData);
       logOperation(`Cache hit for student ID: ${id}`, {
         studentId: studentData.id,
+        operation: 'getSingleStudent'
       });
       return studentData;
     }
@@ -64,12 +68,14 @@ const getSingleStudentFromDB = async (id: string) => {
 
     logOperation(`Student fetched from DB with ID: ${id}`, {
       studentId: result?.id,
+      operation: 'getSingleStudent',
     });
 
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
     return result;
   } catch (error) {
     logError(`Error fetching student with ID: ${id} from database`, { error });
+    throw error;
   }
 };
 

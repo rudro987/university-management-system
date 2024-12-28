@@ -34,6 +34,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "globals": "^15.14.0",
+    "http-status": "^2.0.0",
     "lint-staged": "^15.2.11",
     "mongoose": "^8.9.2",
     "morgan": "^1.10.0",
