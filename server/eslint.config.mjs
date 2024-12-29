@@ -26,13 +26,9 @@ export default tseslint.config(
       "@typescript-eslint/explicit-function-return-type": "error", // Enforce return types on functions
 
       "@typescript-eslint/no-empty-function": "warn", // Warn against empty functions
-      "prettier/prettier": "warn", // Warn on Prettier formatting violations
     },
   },
   {
     ignores: ["**/node_modules/", "**/dist/"], // Ignore node_modules and dist folders
   },
-  {
-    extends: ["prettier"], // Extends Prettier rules
-  }
 );
