@@ -4,7 +4,7 @@ import { ErrorDetail, GenericErrorResponse } from './errors.types';
 const handleZodError = (err: ZodError): GenericErrorResponse => {
   const errorSources: ErrorDetail[] = err.issues.map((issue: ZodIssue) => {
     return {
-      path: issue?.path[issue.path.length - 1] || "unknown",
+      path: issue?.path[issue.path.length - 1] || 'unknown',
       message: issue.message,
     };
   });

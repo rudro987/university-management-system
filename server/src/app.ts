@@ -1,4 +1,4 @@
-import express, { Application, ErrorRequestHandler, Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { StudentRoutes } from './app/modules/student/student.route';
 import attachRequestId from './app/middlewares/attachRequestId';
@@ -22,15 +22,17 @@ app.use(logIncomingRequest);
 //? Application Routes
 app.use('/api/v1/students', StudentRoutes);
 
-//*Application error handler
-app.use(appErrorHandler);
-
-//* gobal error handler
-app.use(globalErrorHandler);
-
 //* Default route to test server setup
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to the UMS server!');
 });
+
+//* Application-specific error handler
+//? Handles errors specific to the application's logic (e.g., AppError)
+app.use(appErrorHandler);
+
+//* Global error handler
+//? Catches unhandled errors or exceptions from preceding middleware or routes
+app.use(globalErrorHandler);
 
 export default app;

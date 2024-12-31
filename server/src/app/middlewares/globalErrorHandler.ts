@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ErrorRequestHandler } from 'express';
 import config from '../config';
 import { ErrorDetail } from '../errors/errors.types';
@@ -8,7 +9,7 @@ import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
 import logger from '../utils/logger';
 
-const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
+const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   // Setting default values
   let statusCode = 500;
   let message = 'Internal Server Error';
@@ -61,11 +62,14 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   });
 
   // return response
-  return res.status(statusCode).json({
+  res.status(statusCode).json({
     success: false,
     message,
     errorSources,
-    error: config.node_env === 'development' ? { name: err?.name, message: err?.message } : null,
+    error:
+      config.node_env === 'development'
+        ? { name: err?.name, message: err?.message }
+        : null,
     stack: config.node_env === 'development' ? err?.stack : null,
   });
 };

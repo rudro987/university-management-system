@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ErrorDetail, GenericErrorResponse } from './errors.types';
 
 const handleDuplicateError = (err: any): GenericErrorResponse => {

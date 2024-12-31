@@ -1,3 +1,4 @@
+import AppError from '../../errors/AppError';
 import { logError, logOperation } from '../../utils/logger';
 import redisClient from '../../utils/redis';
 import { TStudent } from './student.interface';
@@ -6,9 +7,14 @@ import { Student } from './student.model';
 const createStudentIntoDB = async (student: TStudent) => {
   try {
     const result = await Student.create(student);
+
+    if (!result) {
+      throw new AppError(404, `Failed to create student`);
+    }
+
     logOperation('Student created successfully in database', {
       studentId: result.id,
-      operation: 'createStudent'
+      operation: 'createStudent',
     });
 
     await redisClient.del('students:all'); // Invalidate cache
@@ -29,14 +35,23 @@ const getAllStudentsFromDB = async () => {
 
     if (cachedAllStudentsData) {
       const studentsData = JSON.parse(cachedAllStudentsData);
-      logOperation('Cache hit for all students data', { studentsDataCount: studentsData.length, operation: 'getAllStudents' });
+      logOperation('Cache hit for all students data', {
+        studentsDataCount: studentsData.length,
+        operation: 'getAllStudents',
+      });
       return studentsData; // Return cached data
     }
 
     //*Fetch from DB if not cached
     const result = await Student.find();
 
-    logOperation('All students data fetched from DB',  { studentsDataCount: result.length });
+    if(!result || result.length === 0){
+      throw new AppError(404, "Failed to fetch student data");
+    }
+
+    logOperation('All students data fetched from DB', {
+      studentsDataCount: result.length,
+    });
 
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(result)); // Cache result
 
@@ -58,13 +73,17 @@ const getSingleStudentFromDB = async (id: string) => {
       const studentData = JSON.parse(cachedStudentData);
       logOperation(`Cache hit for student ID: ${id}`, {
         studentId: studentData.id,
-        operation: 'getSingleStudent'
+        operation: 'getSingleStudent',
       });
       return studentData;
     }
 
     //*Fetch from DB if not cached
     const result = await Student.findOne({ id });
+
+    if (!result) {
+      throw new AppError(404, `No student found with ID: ${id}`);
+    }
 
     logOperation(`Student fetched from DB with ID: ${id}`, {
       studentId: result?.id,

@@ -1,11 +1,10 @@
 export type ErrorDetail = {
-    path: string | number;
-    message: string;
-  };
+  path: string | number;
+  message: string;
+};
 
-  
 export type GenericErrorResponse = {
-    statusCode: number;
-    message: string;
-    errorSources: ErrorDetail[];
-  };
+  statusCode: number;
+  message: string;
+  errorSources: ErrorDetail[];
+};

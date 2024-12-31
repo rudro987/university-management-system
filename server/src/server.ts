@@ -5,7 +5,7 @@ import logger from './app/utils/logger';
 import redisClient from './app/utils/redis';
 
 //? Main function to initialize database connection and start the server
-const main = async () => {
+const main = async (): Promise<void> => {
   try {
     //* Connect to the MongoDB database using Mongoose
     await mongoose.connect(config.database_url as string);
@@ -28,7 +28,6 @@ const main = async () => {
         process.exit(0); // Exit process
       });
     });
-    
   } catch (error) {
     //! Log any errors that occur during initialization
     logger.error('Error during server startup:', { error });

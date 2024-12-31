@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from 'express';
 import logger from './logger';
 
-const logRequestError = (req: Request, message: string, error: any) => {
+const logRequestError = (req: Request, message: string, error: any): void => {
   logger.error(message, {
     requestId: req.requestId,
     method: req.method,

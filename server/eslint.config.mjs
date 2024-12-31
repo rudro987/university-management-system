@@ -14,7 +14,10 @@ export default tseslint.config(
   },
   {
     rules: {
-      "no-unused-vars": "error",  // Enforce no unused variables
+      "no-unused-vars": [
+        "error",
+        { "argsIgnorePattern": "^_" }
+      ],  // Enforce no unused variables
       "no-undef": "error",  // Enforce no undefined variables
       "prefer-const": "error", // Enforce `const` for variables that are not reassigned
       'no-unused-expressions': 'error', // Disallow unused expressions

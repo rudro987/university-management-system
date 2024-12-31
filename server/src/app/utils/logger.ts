@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createLogger, format, Logger, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import config from '../config';
@@ -33,12 +34,18 @@ const logger: Logger = createLogger({
 });
 
 // Utility for logging operations
-export const logOperation = (message: string, metadata: Record<string, any>) => {
+export const logOperation = (
+  message: string,
+  metadata: Record<string, any>,
+): void => {
   logger.info(message, metadata);
 };
 
 // Utility for logging errors
-export const logError = (message: string, metadata: Record<string, any>) => {
+export const logError = (
+  message: string,
+  metadata: Record<string, any>,
+): void => {
   logger.error(message, metadata);
 };
 
